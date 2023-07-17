@@ -11,7 +11,7 @@ from numba import jit
 #===================================
 # data preprocessing main part
 #===================================
-@jit(nopython=False, cache=True)
+# @jit(nopython=False, cache=True)
 def AugCoordGen(data, label):
     num, length, width = data.shape
 
@@ -59,7 +59,7 @@ def AugCoordGen(data, label):
     return aug_loc
 
 
-@jit(nopython=False, cache=True)
+# @jit(nopython=False, cache=True)
 def OutlierAug(data, label):
     num, length, width = data.shape
 
@@ -76,15 +76,15 @@ def OutlierAug(data, label):
     return aug_data
 
 
-@jit(nopython=False, cache=True)
+# @jit(nopython=False, cache=True)
 def gammaCorrection(src, gamma):
     invGamma = 1 / gamma
 
     table = [((i / 255) ** invGamma) * 255 for i in range(256)]
     table = np.array(table, dtype=np.uint8)
 
-    # return cv2.LUT(src, table), table
-    return table
+    return cv2.LUT(src, table), table
+    # return table
 
 # @jit(nopython=False, cache=True)
 def FSN(array, h_bound, l_bound):
@@ -141,7 +141,7 @@ def ImageSaving(data):
 #===================================
 # data processing
 #===================================
-@jit(nopython=False, cache=True)
+# @jit(nopython=False, cache=True)
 def Data_Read(filename):
     data_temp = np.empty((0, 0), float)
 
@@ -158,7 +158,7 @@ def Data_Read(filename):
 #===================================
 # result post-processing
 #===================================
-@jit(nopython=False, cache=True)
+# @jit(nopython=False, cache=True)
 def FileNameExtract(file_name, length):
     file_name.sort(key=lambda x: int(x[:-4]))
 
@@ -171,7 +171,7 @@ def FileNameExtract(file_name, length):
     return file_name
 
 
-@jit(nopython=False, cache=True)
+# @jit(nopython=False, cache=True)
 def LabelExtract(file_name, data_len, length):
     labels = np.zeros((data_len, 5), float)
 
@@ -201,7 +201,7 @@ def LabelTransfer(labels):
     return yolo_labels
 
 
-@jit(nopython=False, cache=True)
+# @jit(nopython=False, cache=True)
 def LabelCorrect(label, median):
     max_pos = np.zeros((2), dtype=np.uint8)
     label_new = np.zeros((4), dtype=np.uint8)
@@ -275,7 +275,7 @@ def LabelCorrect(label, median):
     return label_new
 
 
-@jit(nopython=False, cache=True)
+# @jit(nopython=False, cache=True)
 def IOU_calc(data, testing_labels, predicting_labels):
     data_len = len(data)
 
@@ -343,7 +343,7 @@ def IOU_calc(data, testing_labels, predicting_labels):
     return (good_percentage, iou_average)
 
 
-@jit(nopython=False, cache=True)
+# @jit(nopython=False, cache=True)
 def HCR(data, label):
     num, length, width = data.shape
 

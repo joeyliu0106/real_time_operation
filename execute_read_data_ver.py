@@ -1,3 +1,4 @@
+import matplotlib
 import matplotlib.pyplot as plt
 import os
 import numpy as np
@@ -12,11 +13,10 @@ from numba import jit
 import torch
 from functions import *
 
-# np.set_printoptions(linewidth=1000)
-
 # ======================
-# settings
+# preprocessing
 # ======================
+######   parameters   ######
 d_filename = 'data_testing'  # filename of data
 l_filename = 'label_testing'  # filename of labels
 filename = 'testing'  # change the name as you want
@@ -28,7 +28,15 @@ detect_path = 'C:/Users/nina/Desktop/streamteck project/yolov5/runs/detect'
 d_path = 'C:/Users/nina/Desktop/streamteck project/real time operation/data_testing'     # data path
 counter = 1
 n = 0
-model = torch.hub.load('ultralytics/yolov5', 'custom', path='C:/Users/nina/Desktop/streamteck project/yolov5/best_new_2.pt', force_reload=True)
+
+# reload matplotlib backend & load customed yolo model
+b = plt.get_backend()
+os.chdir('../yolov5')
+model = torch.hub.load('ultralytics/yolov5', 'custom', path='best_new_2_openvino_model/', force_reload=True, device='cpu')
+model.conf = 0.0005  # NMS confidence threshold
+model.iou = 0.0005  # NMS IoU threshold
+model.max_det = 1  # maximum number of detections per image
+matplotlib.use(b)
 
 
 ######   parameters   ######
@@ -77,8 +85,7 @@ while True:
     # start_time = time.time()
 
     # gamma, table = gammaCorrection(norm.astype(np.uint8), gam)
-    table = gammaCorrection(norm.astype(np.uint8), gam)
-    gamma = cv2.LUT(norm, table)
+    gamma, table = gammaCorrection(norm.astype(np.uint8), gam)
 
     # print('gam interval: ', time.time() - start_time)
 
@@ -116,15 +123,13 @@ while True:
     # ======================
     # start_time = time.time()
 
-    # os.chdir('../yolov5')
-    # subprocess.run('python detect.py --weight best_new_2.pt --source temp.jpg --iou-thres 0.0005 --conf-thres 0.0005 --max-det 1 --save-txt --device cpu', shell=True)
-
     # testing
     image = 'temp.jpg'
     results = model(image)
 
     classes, labels = results.xyxyn[0][:, -1].numpy(), results.xyxyn[0][:, :4].numpy()
     labels = np.squeeze(labels, axis=0)
+    print('labels: ', labels)
 
     # print('pre interval: ', time.time() - start_time)
 
